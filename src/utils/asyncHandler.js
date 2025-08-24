@@ -1,6 +1,6 @@
 // A higher-order function that takes a request handler and returns a new function
 const asyncHandler = (requestHandler) => {
-(req, res, next) => {
+return (req, res, next) => {
     // Resolve the promise from the async function
      // If there's an error, pass it to the next() middleware (error handler)
     Promise.resolve(requestHandler(req, res, next))
