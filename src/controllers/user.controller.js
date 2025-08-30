@@ -24,17 +24,23 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All fields are compulsory!!")
     }
 
-      const exitingUser= User.findOne({
+      const exitingUser= await User.findOne({
         $or: [{username}, {email}]
     })
-    console.log(exitingUser);
+    console.log(req.files);
 
     if(exitingUser){
         throw new ApiError(409," User with email or username already exists.")
     }
 
     const avatarLocalPath = req.files?.avatar[0]?.path
-    const coverImageLocalpath = req.files?.coverImage[0]?.path;
+    // const coverImageLocalpath = req.files?.coverImage[0]?.path;
+
+    let coverImageLocalpath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0) {
+        coverImageLocalpath = req.files.coverImage[0].path
+    }
+
 
     console.log("Avatar Local Path: "+avatarLocalPath);
     console.log("Cover image Local Path: "+coverImageLocalpath);
@@ -54,13 +60,13 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const user = await User.create({
-        fullname,
-        avatar: avatar.url,
-        coverImage: coverImage.url || " ",
-        email,
-        password,
-        username: username.toLowerCase( )
-    });
+    fullname,
+    avatar: avatar.url,
+    coverImage: coverImage?.url || "",   // ✅ safe check
+    email,
+    password,
+    username: username.toLowerCase()
+});
     console.log("User: ", user);
 
     const createdUser = await User.findById(user._id).select(

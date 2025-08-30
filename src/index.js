@@ -7,7 +7,7 @@ import dotenv from "dotenv";  // Importing dotenv to load environment variables
  import { app } from "./app.js";
 
 dotenv.config({
-    path: './env'    // Loading environment variables from a file named 'env'
+    path: './.env'    // Loading environment variables from a file named 'env'
 })
 
 
