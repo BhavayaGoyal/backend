@@ -160,8 +160,8 @@ const logoutUser = asyncHandler(async (req, res) =>{
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1
             }
         },
         {
@@ -181,6 +181,7 @@ const logoutUser = asyncHandler(async (req, res) =>{
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
+    console.log("Incoming refresh token: ", incomingRefreshToken);
     if(!incomingRefreshToken){
         throw new ApiError(401,"Authorization is missing!")
     }
@@ -203,7 +204,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        // secure: true
     }
     const {accessToken, newrefreshToken} =await generateAccessAndRefreshTokens(user._id)
 
@@ -237,10 +238,10 @@ const changeCurrentPassword = asyncHandler(async(req, res) =>{
     user.password = newPassword
     await user.save({validateBeforeSave: false});
 
-    return res.status(200).json(new ApiResponse(200,{},"Password changes successfully!"))
+    return res.status(200).json(new ApiResponse(200,{},"Password changed successfully!"))
 })
 
-const getCurrentUser = asyncHandler(async (res,req)=>{
+const getCurrentUser = asyncHandler(async (req,res)=>{
     return res
     .status(200).json(new ApiResponse(200,req.user,"Current user fetched successfully!"))
 })
@@ -252,7 +253,7 @@ const updateAccountDetails = asyncHandler(async(req, res)=>{
         throw new ApiError(400,"Fullname and email are required!")
     }
 
-    const user = User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set:{
